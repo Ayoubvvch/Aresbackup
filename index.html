@@ -8,7 +8,7 @@
     <!-- KATEX MATHEMATICAL ENGINE -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" onload="renderMathInPage()"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" onload="initAllKaTeX()"></script>
 
     <style>
         :root {
@@ -73,16 +73,31 @@
             pointer-events: none;
         }
 
-        /* BACKGROUND MATRIX / CANVAS */
-        #physicsCanvas {
+        /* FLOATING KATEX BACKGROUND UNIVERSE */
+        #katexBackgroundUniverse {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
+            z-index: 2;
             pointer-events: none;
-            opacity: 0.28;
+            overflow: hidden;
+        }
+
+        .floating-math-node {
+            position: absolute;
+            color: #00ff66;
+            opacity: 0.25;
+            white-space: nowrap;
+            user-select: none;
+            will-change: transform, opacity;
+            text-shadow: 0 0 12px rgba(0, 255, 102, 0.4);
+            filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.3));
+        }
+
+        .floating-math-node .katex {
+            color: #00ff66 !important;
         }
 
         .wrapper {
@@ -103,7 +118,7 @@
         }
 
         .katex-display {
-            margin: 0.5em 0 !important;
+            margin: 0.4em 0 !important;
         }
 
         .katex .frac-line, .katex .sqrt-line {
@@ -200,7 +215,7 @@
         }
 
         .manifold-card {
-            background: rgba(4, 9, 15, 0.85);
+            background: rgba(4, 9, 15, 0.88);
             border: 1px solid rgba(0, 255, 102, 0.2);
             border-radius: 6px;
             padding: 12px 14px;
@@ -616,8 +631,8 @@
     </style>
 </head>
 <body>
-    <!-- BACKGROUND PHYSICS PARTICLES -->
-    <canvas id="physicsCanvas"></canvas>
+    <!-- FLOATING KATEX BACKGROUND MATHEMATICAL UNIVERSE -->
+    <div id="katexBackgroundUniverse"></div>
 
     <!-- TERMINAL DECRYPTION SIMULATOR OVERLAY -->
     <div id="terminalOverlay">
@@ -838,9 +853,90 @@
 
     <script>
         // ==========================================
-        // 0. KATEX RENDER TRIGGER
+        // 0. KATEX INITIALIZER & FLOATING BACKGROUND UNIVERSE
         // ==========================================
-        function renderMathInPage() {
+        const backgroundLatexFormulas = [
+            "e^{i\\pi} + 1 = 0",
+            "G_{\\mu\\nu} + \\Lambda g_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu}",
+            "i\\hbar \\frac{\\partial}{\\partial t} \\Psi = \\hat{\\mathcal{H}} \\Psi",
+            "ds^2 = -\\left(1 - \\frac{2GM}{c^2 r}\\right) c^2 dt^2 + \\left(1 - \\frac{2GM}{c^2 r}\\right)^{-1} dr^2 + r^2 d\\Omega^2",
+            "\\partial_\\mu F^{\\mu\\nu} = \\mu_0 J^\\nu",
+            "S = k_B \\ln \\Omega",
+            "\\mathcal{L} = -\\frac{1}{4} F_{\\mu\\nu}F^{\\mu\\nu} + i\\bar{\\psi}\\gamma^\\mu D_\\mu \\psi - m\\bar{\\psi}\\psi",
+            "E^2 = (pc)^2 + (m_0 c^2)^2",
+            "\\Delta x \\Delta p \\ge \\frac{\\hbar}{2}",
+            "\\mathcal{H}(X) = -\\sum_{i=1}^n P(x_i) \\log_2 P(x_i)",
+            "\\zeta(s) = \\sum_{n=1}^\\infty \\frac{1}{n^s}",
+            "\\text{Key} = \\text{PBKDF2}(P, S, 10^5, 256)",
+            "\\lambda = \\frac{h}{p}",
+            "\\nabla \\times \\mathbf{B} = \\mu_0 \\mathbf{J} + \\mu_0 \\varepsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t}",
+            "R_{\\mu\\nu} - \\frac{1}{2} R g_{\\mu\\nu} = \\kappa T_{\\mu\\nu}"
+        ];
+
+        let floatingNodes = [];
+
+        function initFloatingUniverse() {
+            const container = document.getElementById('katexBackgroundUniverse');
+            if (!container) return;
+            container.innerHTML = '';
+            floatingNodes = [];
+
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+            const count = Math.min(22, Math.max(12, Math.floor(winWidth / 65)));
+
+            for (let i = 0; i < count; i++) {
+                const latex = backgroundLatexFormulas[i % backgroundLatexFormulas.length];
+                const el = document.createElement('div');
+                el.className = 'floating-math-node';
+
+                try {
+                    katex.render(latex, el, { displayMode: false, throwOnError: false });
+                } catch (e) {
+                    el.textContent = latex;
+                }
+
+                const posX = Math.random() * (winWidth - 120);
+                const posY = Math.random() * winHeight;
+                const speed = 0.35 + Math.random() * 0.45;
+                const opacity = 0.12 + Math.random() * 0.28;
+                const scale = 0.75 + Math.random() * 0.45;
+
+                el.style.opacity = opacity;
+                el.style.transform = `translate3d(${posX}px, ${posY}px, 0) scale(${scale})`;
+                container.appendChild(el);
+
+                floatingNodes.push({
+                    el,
+                    x: posX,
+                    y: posY,
+                    speed,
+                    scale,
+                    opacity
+                });
+            }
+
+            animateFloatingUniverse();
+        }
+
+        let animationFrameId = null;
+        function animateFloatingUniverse() {
+            const winHeight = window.innerHeight;
+            const winWidth = window.innerWidth;
+
+            floatingNodes.forEach(node => {
+                node.y -= node.speed;
+                if (node.y < -60) {
+                    node.y = winHeight + 30;
+                    node.x = Math.random() * (winWidth - 120);
+                }
+                node.el.style.transform = `translate3d(${node.x}px, ${node.y}px, 0) scale(${node.scale})`;
+            });
+
+            animationFrameId = requestAnimationFrame(animateFloatingUniverse);
+        }
+
+        function initAllKaTeX() {
             if (window.renderMathInElement) {
                 renderMathInElement(document.body, {
                     delimiters: [
@@ -851,62 +947,14 @@
                     throwOnError: false
                 });
             }
+            if (window.katex) {
+                initFloatingUniverse();
+            }
         }
-
-        // ==========================================
-        // 1. FLOATING PHYSICS PARTICLES (CANVAS)
-        // ==========================================
-        const canvas = document.getElementById('physicsCanvas');
-        const ctx = canvas.getContext('2d');
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
 
         window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+            if (window.katex) initFloatingUniverse();
         });
-
-        const equations = [
-            "e^(iπ) + 1 = 0",
-            "G_μν + Λg_μν = (8πG/c⁴) T_μν",
-            "iℏ ∂ψ/∂t = Ĥψ",
-            "ds² = -(1-2GM/r)dt² + (1-2GM/r)⁻¹dr² + r²dΩ²",
-            "∇_μ F^μν = μ₀ J^ν",
-            "S = k_B ln Ω",
-            "AES_256(K, P)",
-            "PBKDF2(Pass, Salt, 100000, 256)",
-            "∮ B·dl = μ₀ I_enc",
-            "R_μν - ½ R g_μν = 8πG T_μν",
-            "λ = h / p",
-            "Δx Δp ≥ ℏ/2",
-            "H(X) = -∑ p(x) log₂ p(x)"
-        ];
-
-        const particles = Array.from({ length: 30 }, () => ({
-            text: equations[Math.floor(Math.random() * equations.length)],
-            x: Math.random() * width,
-            y: Math.random() * height,
-            speedY: -0.35 - Math.random() * 0.45,
-            opacity: 0.15 + Math.random() * 0.4,
-            size: 11 + Math.random() * 4
-        }));
-
-        function animatePhysicsCanvas() {
-            ctx.clearRect(0, 0, width, height);
-            ctx.font = '12px "JetBrains Mono", monospace';
-            particles.forEach(p => {
-                ctx.fillStyle = `rgba(0, 255, 102, ${p.opacity})`;
-                ctx.fillText(p.text, p.x, p.y);
-                p.y += p.speedY;
-                if (p.y < -20) {
-                    p.y = height + 20;
-                    p.x = Math.random() * width;
-                    p.text = equations[Math.floor(Math.random() * equations.length)];
-                }
-            });
-            requestAnimationFrame(animatePhysicsCanvas);
-        }
-        animatePhysicsCanvas();
 
         // ==========================================
         // 2. REMOTE PAYLOAD LOADER
@@ -915,7 +963,7 @@
         let decryptedBundle = null;
 
         window.addEventListener('DOMContentLoaded', async () => {
-            renderMathInPage();
+            initAllKaTeX();
             try {
                 const res = await fetch('./backup_payload.json?_t=' + Date.now());
                 if (res.ok) {
@@ -985,7 +1033,7 @@
             appendTermLine(`INGESTING CIPHERTEXT HASH: SHA-256 [${encryptedPayloadRaw.salt.slice(0, 12)}...]`);
             await sleep(70);
             appendTermLine('EULER EQUATION OF CONTINUITY: \\( \\partial_t \\rho + \\nabla \\cdot (\\rho \\mathbf{u}) = 0 \\)', 'term-math');
-            renderMathInPage();
+            initAllKaTeX();
             await sleep(70);
             appendTermLine('DERIVING PBKDF2 KEY MANIFOLD [100,000 ROUNDS OF SHA-256]...');
             await sleep(90);
@@ -1024,7 +1072,7 @@
                 );
 
                 appendTermLine('EINSTEIN FIELD TENSOR: \\( G_{\\mu\\nu} + \\Lambda g_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu} \\) [MATCHED]', 'term-math');
-                renderMathInPage();
+                initAllKaTeX();
                 await sleep(80);
                 appendTermLine('VERIFYING GALOIS COUNTER MODE (GCM) GHASH AUTHENTICATION VECTOR...');
                 await sleep(90);
@@ -1090,7 +1138,7 @@
             const recoveryCommand = `curl -fsSL https://raw.githubusercontent.com/Ayoubvvch/ares-md-bot/main/install.sh | bash`;
             document.getElementById('installCmdBox').textContent = recoveryCommand;
 
-            renderMathInPage();
+            initAllKaTeX();
         }
 
         function switchTab(tabId, btn) {
