@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARES-MD // Disaster Recovery Vault</title>
+    <title>EULER-EINSTEIN // QUANTUM DISASTER VAULT [ARES-MD]</title>
     <style>
         :root {
-            --bg-color: #080b11;
-            --card-bg: rgba(16, 22, 34, 0.85);
-            --border-color: rgba(0, 240, 255, 0.2);
-            --border-glow: rgba(0, 240, 255, 0.4);
-            --cyan: #00f0ff;
-            --cyan-dim: rgba(0, 240, 255, 0.15);
-            --green: #00ff88;
-            --green-dim: rgba(0, 255, 136, 0.15);
-            --amber: #ffaa00;
-            --red: #ff3366;
-            --text-main: #f0f4f8;
-            --text-muted: #8b9bb4;
-            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --bg-void: #020508;
+            --bg-panel: rgba(6, 12, 18, 0.92);
+            --bg-terminal: #03080c;
+            --green-core: #00ff66;
+            --green-glow: rgba(0, 255, 102, 0.45);
+            --green-dim: rgba(0, 255, 102, 0.12);
+            --red-alert: #ff003c;
+            --red-glow: rgba(255, 0, 60, 0.5);
+            --red-dim: rgba(255, 0, 60, 0.15);
+            --cyan-core: #00f0ff;
+            --text-bright: #e6fff0;
+            --text-dim: #5c8570;
+            --border-green: rgba(0, 255, 102, 0.25);
+            --border-glow: 0 0 14px rgba(0, 255, 102, 0.25);
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
         }
 
         * {
@@ -29,283 +30,460 @@
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: var(--font-sans);
+            background-color: var(--bg-void);
+            color: var(--text-bright);
+            font-family: var(--font-mono);
             min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-image: 
-                radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 60%),
-                radial-gradient(circle at 100% 100%, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
-            background-attachment: fixed;
-            padding: 20px 16px;
+            padding: 16px;
         }
 
-        .container {
+        /* CRT SCANLINE & RADIAL VIGNETTE OVERLAY */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 99;
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.75;
+        }
+
+        body::after {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: radial-gradient(circle at 50% 50%, transparent 65%, rgba(0, 0, 0, 0.85) 100%);
+            z-index: 98;
+            pointer-events: none;
+        }
+
+        /* BACKGROUND MATRIX / EQUATIONS CANVAS */
+        #physicsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 900px;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.35;
         }
 
-        /* HEADER */
-        header {
-            text-align: center;
-            margin-bottom: 24px;
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 960px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .brand-badge {
-            display: inline-flex;
+        /* TOP HUD CLASSIFIED HEADER */
+        .hud-header {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-green);
+            box-shadow: var(--border-glow);
+            padding: 14px 18px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            padding: 4px 12px;
-            border-radius: 999px;
-            background: var(--cyan-dim);
-            border: 1px solid var(--border-color);
-            color: var(--cyan);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .hud-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hud-badge {
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            color: var(--bg-void);
+            background: var(--green-core);
+            padding: 3px 8px;
+            border-radius: 3px;
+            box-shadow: 0 0 10px var(--green-glow);
             text-transform: uppercase;
-            margin-bottom: 12px;
         }
 
-        .brand-badge .pulse {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--green);
-            box-shadow: 0 0 8px var(--green);
+        .hud-code {
+            color: var(--green-core);
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 8px var(--green-glow);
         }
 
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
+        .equations-ticker {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 480px;
+        }
+
+        .equations-ticker span {
+            color: var(--cyan-core);
+            margin: 0 8px;
+        }
+
+        /* SCIENTIFIC HERO BANNER */
+        .hero-banner {
+            text-align: center;
+            padding: 16px 12px;
+        }
+
+        .hero-banner h1 {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            color: #ffffff;
+            text-transform: uppercase;
+            text-shadow: 0 0 16px rgba(0, 255, 102, 0.4), 0 0 30px rgba(0, 255, 102, 0.2);
             margin-bottom: 6px;
-            background: linear-gradient(135deg, #ffffff 40%, var(--cyan) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 0.9rem;
+        .hero-banner .formula-bar {
+            font-size: 0.85rem;
+            color: var(--green-core);
+            letter-spacing: 0.12em;
+            margin-bottom: 6px;
+            text-shadow: 0 0 6px var(--green-glow);
         }
 
-        /* CARDS */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 16px;
+        .hero-banner .quote {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        /* PANELS & CARDS */
+        .cyber-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-green);
+            border-radius: 8px;
             padding: 24px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), var(--border-glow);
+            position: relative;
+        }
+
+        .cyber-card::before {
+            content: "SEC-LVL: 0x9F // CRYPT-SYS: AES-256-GCM";
+            position: absolute;
+            top: -9px;
+            left: 18px;
+            font-size: 0.65rem;
+            background: var(--bg-void);
+            padding: 0 8px;
+            color: var(--green-core);
+            letter-spacing: 0.1em;
+            border: 1px solid var(--border-green);
+            border-radius: 3px;
         }
 
         /* AUTH LOCK SCREEN */
-        #authSection {
-            max-width: 460px;
-            margin: 40px auto 0;
-            text-align: center;
+        #authScreen {
+            max-width: 520px;
+            margin: 20px auto 0;
+            width: 100%;
         }
 
-        .vault-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-            display: inline-block;
-            filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.4));
+        .lock-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--red-alert);
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px var(--red-glow);
         }
 
-        .input-group {
+        .lock-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--red-alert);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--red-alert);
+            animation: pulse-red 1.2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+
+        .input-box {
             position: relative;
-            margin: 20px 0;
+            margin: 20px 0 16px;
         }
 
-        .input-field {
+        .cyber-input {
             width: 100%;
             padding: 14px 18px;
-            padding-right: 48px;
-            background: rgba(8, 12, 20, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
+            padding-right: 50px;
+            background: #02060a;
+            border: 1px solid rgba(0, 255, 102, 0.35);
             color: #fff;
+            font-family: var(--font-mono);
             font-size: 1rem;
-            font-family: var(--font-sans);
+            border-radius: 6px;
+            letter-spacing: 0.1em;
             transition: all 0.2s ease;
         }
 
-        .input-field:focus {
+        .cyber-input:focus {
             outline: none;
-            border-color: var(--cyan);
-            box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+            border-color: var(--green-core);
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
         }
 
-        .toggle-pwd {
+        .toggle-btn {
             position: absolute;
-            right: 14px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--text-muted);
+            color: var(--green-core);
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
-        .btn-primary {
+        .cyber-btn {
             width: 100%;
-            padding: 14px 20px;
-            background: linear-gradient(135deg, #00f0ff, #0088ff);
+            padding: 14px;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #020609;
+            background: var(--green-core);
             border: none;
-            border-radius: 12px;
-            color: #050b14;
-            font-size: 1rem;
-            font-weight: 700;
+            border-radius: 6px;
             cursor: pointer;
+            box-shadow: 0 0 20px var(--green-glow);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .btn-primary:hover {
-            opacity: 0.95;
+        .cyber-btn:hover {
+            background: #26ff7b;
+            box-shadow: 0 0 30px var(--green-glow);
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(0, 240, 255, 0.35);
         }
 
-        .btn-primary:active {
+        .cyber-btn:active {
             transform: translateY(0);
         }
 
-        .auth-status {
-            margin-top: 14px;
-            font-size: 0.85rem;
-            min-height: 20px;
+        .cyber-btn-red {
+            background: var(--red-alert);
+            color: #ffffff;
+            box-shadow: 0 0 16px var(--red-glow);
         }
 
-        .error-msg {
-            color: var(--red);
+        .cyber-btn-red:hover {
+            background: #ff2a55;
+            box-shadow: 0 0 26px var(--red-glow);
         }
 
-        .shake {
-            animation: shake 0.4s ease-in-out;
+        /* TERMINAL DECRYPTION SEQUENCE OVERLAY */
+        #terminalOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 10, 0.96);
+            z-index: 1000;
+            padding: 24px;
+            justify-content: center;
+            align-items: center;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
+        .terminal-window {
+            width: 100%;
+            max-width: 780px;
+            height: 480px;
+            background: var(--bg-terminal);
+            border: 1px solid var(--green-core);
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(0, 255, 102, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        /* VAULT DASHBOARD (UNLOCKED) */
-        #vaultSection {
+        .terminal-bar {
+            background: #061118;
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-green);
+            font-size: 0.75rem;
+            color: var(--green-core);
+        }
+
+        .terminal-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: var(--green-core);
+            white-space: pre-wrap;
+        }
+
+        .terminal-body .term-red {
+            color: var(--red-alert);
+            text-shadow: 0 0 8px var(--red-glow);
+        }
+
+        .terminal-body .term-cyan {
+            color: var(--cyan-core);
+        }
+
+        .terminal-body .term-white {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* UNLOCKED DASHBOARD */
+        #dashboardScreen {
             display: none;
         }
 
-        .vault-header-meta {
+        .dash-meta-row {
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
             gap: 12px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-green);
         }
 
-        .status-pill {
-            display: inline-flex;
+        .dash-status {
+            display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 8px;
-            background: var(--green-dim);
-            color: var(--green);
-            font-size: 0.8rem;
-            font-weight: 600;
+            gap: 8px;
+            color: var(--green-core);
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 8px var(--green-glow);
         }
 
-        .btn-lock {
-            background: rgba(255, 51, 102, 0.15);
-            border: 1px solid rgba(255, 51, 102, 0.3);
-            color: var(--red);
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .btn-lock:hover {
-            background: rgba(255, 51, 102, 0.25);
+        .dash-status .pulse-green {
+            width: 8px;
+            height: 8px;
+            background: var(--green-core);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--green-core);
         }
 
         /* TABS */
-        .tabs {
+        .dash-tabs {
             display: flex;
             gap: 8px;
             overflow-x: auto;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 255, 102, 0.15);
             padding-bottom: 8px;
         }
 
         .tab-btn {
             background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            border: 1px solid transparent;
+            color: var(--text-dim);
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
             cursor: pointer;
             transition: all 0.2s ease;
             white-space: nowrap;
         }
 
         .tab-btn:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
+            color: var(--green-core);
+            background: var(--green-dim);
         }
 
         .tab-btn.active {
-            color: var(--cyan);
-            background: var(--cyan-dim);
-            border: 1px solid var(--border-color);
+            color: #020609;
+            background: var(--green-core);
+            border-color: var(--green-core);
+            box-shadow: 0 0 12px var(--green-glow);
         }
 
-        .tab-content {
+        .tab-panel {
             display: none;
         }
 
-        .tab-content.active {
+        .tab-panel.active {
             display: block;
         }
 
-        /* ACTIONS BAR */
-        .actions-bar {
+        /* CODE DISPLAY */
+        .code-container {
+            position: relative;
+            background: #020609;
+            border: 1px solid var(--border-green);
+            border-radius: 6px;
+            padding: 16px;
+            max-height: 480px;
+            overflow: auto;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: #bbf7d0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .code-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
             gap: 10px;
         }
 
-        .btn-copy {
-            background: var(--cyan);
-            color: #080c14;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
+        .btn-action {
+            background: var(--green-dim);
+            color: var(--green-core);
+            border: 1px solid var(--green-core);
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
             font-weight: 700;
-            font-size: 0.85rem;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -313,266 +491,311 @@
             transition: all 0.2s ease;
         }
 
-        .btn-copy:hover {
-            opacity: 0.9;
-            box-shadow: 0 4px 12px rgba(0, 240, 255, 0.3);
+        .btn-action:hover {
+            background: var(--green-core);
+            color: #020609;
+            box-shadow: 0 0 16px var(--green-glow);
         }
 
-        .code-box {
-            background: rgba(4, 7, 12, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 16px;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: #d1e4ff;
-            line-height: 1.6;
-            max-height: 480px;
-            overflow: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-
-        /* RECOVERY BOX */
-        .recovery-banner {
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(0, 136, 255, 0.04));
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 20px;
-        }
-
-        .recovery-banner h3 {
-            font-size: 1.05rem;
-            margin-bottom: 6px;
-            color: var(--cyan);
-        }
-
-        .recovery-banner p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        /* DOWNLOAD CARDS */
-        .download-grid {
+        /* DOWNLOAD CARDS GRID */
+        .dl-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 16px;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
-        .download-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            padding: 18px;
+        .dl-box {
+            background: rgba(0, 255, 102, 0.03);
+            border: 1px solid var(--border-green);
+            border-radius: 6px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             gap: 12px;
         }
 
-        .download-card h4 {
+        .dl-box h3 {
             font-size: 0.95rem;
             color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            letter-spacing: 0.05em;
         }
 
-        .download-card p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
+        .dl-box p {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            line-height: 1.4;
         }
 
-        .btn-download {
-            background: rgba(0, 255, 136, 0.15);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: var(--green);
-            padding: 9px 14px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s ease;
+        /* SHAKE ANIMATION */
+        .shake-screen {
+            animation: err-shake 0.4s ease-in-out;
         }
 
-        .btn-download:hover {
-            background: rgba(0, 255, 136, 0.25);
-            box-shadow: 0 4px 14px rgba(0, 255, 136, 0.2);
+        @keyframes err-shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
         }
 
         footer {
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-muted);
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- HEADER -->
-        <header>
-            <div class="brand-badge">
-                <span class="pulse"></span>
-                <span>Ares-MD Cloud Continuity</span>
-            </div>
-            <h1>Disaster Recovery Vault</h1>
-            <p class="subtitle">Zero-Knowledge Client-Side Decryption Portal</p>
-        </header>
+    <!-- BACKGROUND PHYSICS CANVAS -->
+    <canvas id="physicsCanvas"></canvas>
 
-        <!-- AUTH LOCK SECTION -->
-        <section id="authSection" class="card">
-            <div class="vault-icon">🔐</div>
-            <h2 style="font-size: 1.3rem; margin-bottom: 8px;">Vault Locked</h2>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">
-                Enter your Master Password to decrypt your emergency backup directly in your browser.
+    <!-- TERMINAL DECRYPTION SIMULATOR OVERLAY -->
+    <div id="terminalOverlay">
+        <div class="terminal-window">
+            <div class="terminal-bar">
+                <span>[QUANTUM CORE // AES-256-GCM MANIFOLD]</span>
+                <span id="termStatus">COMPUTING...</span>
+            </div>
+            <div id="terminalLog" class="terminal-body"></div>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <!-- TOP HUD CLASSIFIED BAR -->
+        <div class="hud-header">
+            <div class="hud-title">
+                <span class="hud-badge">CLASSIFIED</span>
+                <span class="hud-code">EULER-EINSTEIN PROTOCOL // E=mc²</span>
+            </div>
+            <div class="equations-ticker">
+                e^(iπ) + 1 = 0 <span>&bull;</span> G_μν + Λg_μν = (8πG/c⁴) T_μν <span>&bull;</span> iℏ ∂ψ/∂t = Ĥψ <span>&bull;</span> AES-256-GCM
+            </div>
+        </div>
+
+        <!-- HERO IDENTITY -->
+        <div class="hero-banner">
+            <div class="formula-bar">R_μν - ½ R g_μν + g_μν Λ = 8πG T_μν</div>
+            <h1>Disaster Recovery Quantum Vault</h1>
+            <p class="quote">"God does not play dice with the universe." &bull; Zero-Knowledge Sovereign Vault</p>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- 1. AUTH / LOCK SCREEN -->
+        <!-- ============================================== -->
+        <section id="authScreen" class="cyber-card">
+            <div class="lock-indicator">
+                <span class="dot"></span>
+                <span>CRYPTOGRAPHIC LOCK ENGAGED</span>
+            </div>
+            <h2 style="font-size: 1.1rem; letter-spacing: 0.08em; margin-bottom: 8px; color: #fff;">
+                EULER ARCHIVE // AUTHORIZATION REQUIRED
+            </h2>
+            <p style="font-size: 0.75rem; color: var(--text-dim); line-height: 1.5;">
+                Enter Master Password. Key will be derived client-side via PBKDF2 (100,000 iterations of SHA-256) inside your hardware RAM. Zero packets transmitted.
             </p>
 
-            <form id="authForm" onsubmit="handleUnlock(event)">
-                <div class="input-group">
+            <form id="authForm" onsubmit="triggerQuantumUnlock(event)">
+                <div class="input-box">
                     <input 
                         type="password" 
-                        id="masterPass" 
-                        class="input-field" 
-                        placeholder="Enter Master Password..." 
+                        id="masterPassInput" 
+                        class="cyber-input" 
+                        placeholder="ENTER MASTER PASSPHRASE..." 
                         required 
                         autocomplete="current-password"
                     />
-                    <button type="button" class="toggle-pwd" onclick="togglePasswordVisibility()">👁️</button>
+                    <button type="button" class="toggle-btn" onclick="togglePassVisibility()">👁️</button>
                 </div>
-                <button type="submit" id="unlockBtn" class="btn-primary">
-                    <span>Unlock Vault</span> 🔓
+                <button type="submit" id="unlockTriggerBtn" class="cyber-btn">
+                    <span>EXECUTE QUANTUM DECRYPTION</span> ⚡
                 </button>
             </form>
 
-            <div id="authStatus" class="auth-status"></div>
+            <div id="authStatusText" style="margin-top: 12px; font-size: 0.8rem; text-align: center; min-height: 20px;"></div>
         </section>
 
-        <!-- UNLOCKED VAULT DASHBOARD -->
-        <section id="vaultSection" class="card">
-            <div class="vault-header-meta">
-                <div>
-                    <span class="status-pill">
-                        <span>●</span>
-                        <span>Decrypted & Verified</span>
-                    </span>
-                    <span id="backupTimestamp" style="margin-left: 10px; font-size: 0.8rem; color: var(--text-muted);"></span>
+        <!-- ============================================== -->
+        <!-- 2. UNLOCKED DASHBOARD HUD -->
+        <!-- ============================================== -->
+        <section id="dashboardScreen" class="cyber-card">
+            <div class="dash-meta-row">
+                <div class="dash-status">
+                    <span class="pulse-green"></span>
+                    <span>VAULT UNLOCKED // QUANTUM STATE ACTIVE</span>
                 </div>
-                <button class="btn-lock" onclick="lockVault()">🔒 Lock Vault</button>
+                <div style="font-size: 0.75rem; color: var(--cyan-core);" id="hudTimestamp"></div>
+                <button class="cyber-btn cyber-btn-red" style="width: auto; padding: 6px 14px; font-size: 0.75rem;" onclick="lockdownVault()">
+                    🔒 EMERGENCY PURGE
+                </button>
             </div>
 
-            <!-- NAVIGATION TABS -->
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('envTab', this)">📋 .env Secrets</button>
-                <button class="tab-btn" onclick="switchTab('restoreTab', this)">🚀 1-Click Server Restore</button>
-                <button class="tab-btn" onclick="switchTab('downloadTab', this)">📦 Sessions & Archive</button>
-                <button class="tab-btn" onclick="switchTab('configTab', this)">⚙️ config.js & cookies</button>
+            <!-- TABS -->
+            <div class="dash-tabs">
+                <button class="tab-btn active" onclick="switchTab('tabEnv', this)">[ 01 // .ENV SECRETS ]</button>
+                <button class="tab-btn" onclick="switchTab('tabRestore', this)">[ 02 // 1-CLICK SERVER RECOVERY ]</button>
+                <button class="tab-btn" onclick="switchTab('tabDownload', this)">[ 03 // SESSIONS & CREDENTIALS ]</button>
+                <button class="tab-btn" onclick="switchTab('tabConfig', this)">[ 04 // CONFIG & COOKIES ]</button>
             </div>
 
             <!-- TAB 1: .ENV SECRETS -->
-            <div id="envTab" class="tab-content active">
-                <div class="actions-bar">
-                    <span style="font-size: 0.85rem; color: var(--text-muted);">
-                        Complete environment configuration, API keys, and server parameters:
+            <div id="tabEnv" class="tab-panel active">
+                <div class="code-actions">
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">
+                        MASTER REPOSITORY ENVIRONMENT (DECRYPTED FROM GHASH AES-GCM BLOCK):
                     </span>
-                    <button class="btn-copy" onclick="copyContent('envContent', this)">
-                        <span>Copy Entire .env</span>
+                    <button class="btn-action" onclick="copyCode('envPayloadBox', this)">
+                        <span>COPY ENTIRE .ENV</span>
                     </button>
                 </div>
-                <pre id="envContent" class="code-box">Loading...</pre>
+                <pre id="envPayloadBox" class="code-container">Loading payload...</pre>
             </div>
 
-            <!-- TAB 2: DISASTER RECOVERY ONE-LINER -->
-            <div id="restoreTab" class="tab-content">
-                <div class="recovery-banner">
-                    <h3>⚡ Total Server Disaster Recovery</h3>
-                    <p>
-                        If your VPS is destroyed or lost, purchase any fresh Ubuntu 22.04/24.04 server and run this single command. 
-                        It will clone the bot, decrypt your sessions, and restore WhatsApp without scanning a QR code!
+            <!-- TAB 2: 1-CLICK SERVER RECOVERY -->
+            <div id="tabRestore" class="tab-panel">
+                <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 6px; padding: 14px; margin-bottom: 14px;">
+                    <h3 style="color: var(--cyan-core); font-size: 0.95rem; margin-bottom: 6px;">⚡ BARE-METAL DISASTER RECONSTRUCTION</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-dim); line-height: 1.5;">
+                        If your current server is terminated or lost: Deploy any brand-new Ubuntu 22.04 or 24.04 server. 
+                        Paste this single command into the terminal. It fetches the engine, decrypts the WhatsApp credentials, and resumes operations in seconds!
                     </p>
                 </div>
-                <div class="actions-bar">
-                    <span style="font-size: 0.85rem; color: var(--cyan); font-weight: 600;">
-                        Emergency Deployment Command:
-                    </span>
-                    <button class="btn-copy" onclick="copyContent('installCmd', this)">
-                        <span>Copy Command</span>
+                <div class="code-actions">
+                    <span style="font-size: 0.75rem; color: var(--green-core); font-weight: 700;">GENESIS DEPLOYMENT COMMAND:</span>
+                    <button class="btn-action" onclick="copyCode('installCmdBox', this)">
+                        <span>COPY COMMAND</span>
                     </button>
                 </div>
-                <pre id="installCmd" class="code-box">Loading...</pre>
+                <pre id="installCmdBox" class="code-container">Loading...</pre>
             </div>
 
-            <!-- TAB 3: DOWNLOAD RAW ARCHIVES -->
-            <div id="downloadTab" class="tab-content">
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-                    Download individual credentials and session files directly to your device:
+            <!-- TAB 3: DOWNLOAD SESSIONS -->
+            <div id="tabDownload" class="tab-panel">
+                <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px;">
+                    Raw cryptographic archives extracted from the zero-knowledge payload:
                 </p>
-                <div class="download-grid">
-                    <div class="download-card">
+                <div class="dl-grid">
+                    <div class="dl-box">
                         <div>
-                            <h4>📲 WhatsApp & Telegram Sessions</h4>
-                            <p>Complete multi-device Baileys authentication keys, creds.json, and SQLite database.</p>
+                            <h3 style="color: var(--green-core);">📲 WHATSAPP & TELEGRAM SESSIONS</h3>
+                            <p>Full multi-device Baileys creds.json, sync state, and SQLite database for zero-QR connection.</p>
                         </div>
-                        <button class="btn-download" onclick="downloadSessionArchive()">
-                            ⬇️ Download ares_sessions.tar.gz
+                        <button class="cyber-btn" style="padding: 10px; font-size: 0.8rem;" onclick="downloadSessionBlob()">
+                            ⬇️ DOWNLOAD ares_sessions.tar.gz
                         </button>
                     </div>
 
-                    <div class="download-card">
+                    <div class="dl-box">
                         <div>
-                            <h4>🍪 YouTube Cookies</h4>
-                            <p>Bypasses bot detection and age verification for YouTube audio and video downloads.</p>
+                            <h3 style="color: var(--cyan-core);">🍪 YOUTUBE COOKIES VAULT</h3>
+                            <p>Active Netscape cookie database for bypassing bot and rate-limit detection on YouTube audio/video.</p>
                         </div>
-                        <button class="btn-download" onclick="downloadTextFile('cookies.txt', decryptedData?.cookies)">
-                            ⬇️ Download cookies.txt
+                        <button class="cyber-btn" style="padding: 10px; font-size: 0.8rem; background: var(--cyan-core);" onclick="downloadTextBlob('cookies.txt', decryptedBundle?.cookies)">
+                            ⬇️ DOWNLOAD cookies.txt
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 4: CONFIG & COOKIES PREVIEW -->
-            <div id="configTab" class="tab-content">
-                <div class="actions-bar">
-                    <span style="font-size: 0.85rem; color: var(--text-muted);">config.js Bot Configuration:</span>
-                    <button class="btn-copy" onclick="copyContent('configContent', this)">
-                        <span>Copy config.js</span>
+            <!-- TAB 4: CONFIG & COOKIES -->
+            <div id="tabConfig" class="tab-panel">
+                <div class="code-actions">
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">config.js SYSTEM ARCHITECTURE:</span>
+                    <button class="btn-action" onclick="copyCode('configPayloadBox', this)">
+                        <span>COPY CONFIG.JS</span>
                     </button>
                 </div>
-                <pre id="configContent" class="code-box">Loading...</pre>
+                <pre id="configPayloadBox" class="code-container">Loading...</pre>
             </div>
         </section>
 
         <footer>
-            ARES-MD &bull; Encrypted with AES-256-GCM &bull; Client-side Decryption
+            EULER-EINSTEIN CONTINUITY SYSTEM &bull; ZERO-KNOWLEDGE PROOF &bull; SOVEREIGN CRYPTO ENGINE
         </footer>
     </div>
 
     <script>
-        let rawPayload = null;
-        let decryptedData = null;
+        // ==========================================
+        // 1. FLOATING PHYSICS & EQUATIONS CANVAS
+        // ==========================================
+        const canvas = document.getElementById('physicsCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
 
-        // Auto-fetch the encrypted backup bundle on load
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const equations = [
+            "e^(iπ) + 1 = 0",
+            "G_μν + Λg_μν = (8πG/c⁴) T_μν",
+            "iℏ ∂ψ/∂t = Ĥψ",
+            "ds² = -(1-2GM/r)dt² + (1-2GM/r)⁻¹dr² + r²dΩ²",
+            "∇_μ F^μν = μ₀ J^ν",
+            "S = k_B ln Ω",
+            "AES_256(K, P)",
+            "PBKDF2(Pass, Salt, 100000, 256)",
+            "∮ B·dl = μ₀ I_enc",
+            "R_μν - ½ R g_μν = 8πG T_μν",
+            "λ = h / p",
+            "Δx Δp ≥ ℏ/2",
+            "F = dp/dt",
+            "H(X) = -∑ p(x) log₂ p(x)"
+        ];
+
+        const particles = Array.from({ length: 32 }, () => ({
+            text: equations[Math.floor(Math.random() * equations.length)],
+            x: Math.random() * width,
+            y: Math.random() * height,
+            speedY: -0.35 - Math.random() * 0.45,
+            opacity: 0.15 + Math.random() * 0.45,
+            size: 11 + Math.random() * 4
+        }));
+
+        function animatePhysicsCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.font = '12px "JetBrains Mono", monospace';
+            particles.forEach(p => {
+                ctx.fillStyle = `rgba(0, 255, 102, ${p.opacity})`;
+                ctx.fillText(p.text, p.x, p.y);
+                p.y += p.speedY;
+                if (p.y < -20) {
+                    p.y = height + 20;
+                    p.x = Math.random() * width;
+                    p.text = equations[Math.floor(Math.random() * equations.length)];
+                }
+            });
+            requestAnimationFrame(animatePhysicsCanvas);
+        }
+        animatePhysicsCanvas();
+
+        // ==========================================
+        // 2. REMOTE PAYLOAD LOADER
+        // ==========================================
+        let encryptedPayloadRaw = null;
+        let decryptedBundle = null;
+
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 const res = await fetch('./backup_payload.json?_t=' + Date.now());
                 if (res.ok) {
-                    rawPayload = await res.json();
+                    encryptedPayloadRaw = await res.json();
                 } else {
-                    document.getElementById('authStatus').innerHTML = 
-                        '<span class="error-msg">⚠️ backup_payload.json not found in repository.</span>';
+                    document.getElementById('authStatusText').innerHTML = 
+                        '<span style="color:var(--red-alert)">[ALERT: backup_payload.json unreachable]</span>';
                 }
             } catch (err) {
-                document.getElementById('authStatus').innerHTML = 
-                    '<span class="error-msg">Failed to load encrypted bundle: ' + err.message + '</span>';
+                document.getElementById('authStatusText').innerHTML = 
+                    `<span style="color:var(--red-alert)">[ERROR: ${err.message}]</span>`;
             }
         });
 
-        function togglePasswordVisibility() {
-            const input = document.getElementById('masterPass');
+        function togglePassVisibility() {
+            const input = document.getElementById('masterPassInput');
             input.type = input.type === 'password' ? 'text' : 'password';
         }
 
@@ -585,30 +808,59 @@
             return bytes;
         }
 
-        async function handleUnlock(e) {
-            e.preventDefault();
-            const password = document.getElementById('masterPass').value.trim();
-            const authStatus = document.getElementById('authStatus');
-            const authCard = document.getElementById('authSection');
-            const unlockBtn = document.getElementById('unlockBtn');
+        // ==========================================
+        // 3. LIGHTNING QUANTUM TERMINAL SIMULATOR
+        // ==========================================
+        const terminalOverlay = document.getElementById('terminalOverlay');
+        const terminalLog = document.getElementById('terminalLog');
+        const termStatus = document.getElementById('termStatus');
 
-            if (!rawPayload) {
-                authStatus.innerHTML = '<span class="error-msg">⚠️ Backup bundle not loaded. Check repository.</span>';
+        function appendTermLine(text, cssClass = '') {
+            const line = document.createElement('div');
+            if (cssClass) line.className = cssClass;
+            line.textContent = `> ${text}`;
+            terminalLog.appendChild(line);
+            terminalLog.scrollTop = terminalLog.scrollHeight;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function triggerQuantumUnlock(e) {
+            e.preventDefault();
+            const password = document.getElementById('masterPassInput').value.trim();
+            const authCard = document.getElementById('authScreen');
+            const authStatus = document.getElementById('authStatusText');
+
+            if (!encryptedPayloadRaw) {
+                authStatus.innerHTML = '<span style="color:var(--red-alert)">[CRITICAL: Payload bundle not loaded]</span>';
                 return;
             }
 
-            unlockBtn.innerHTML = '<span>Decrypting in Browser...</span> ⏳';
-            unlockBtn.disabled = true;
-            authStatus.innerHTML = '';
+            // Launch lightning terminal
+            terminalLog.innerHTML = '';
+            termStatus.textContent = 'COMPUTING QUANTUM TENSOR...';
+            termStatus.style.color = 'var(--cyan-core)';
+            terminalOverlay.style.display = 'flex';
 
+            appendTermLine('INITIALIZING QUANTUM CRYPTOGRAPHIC ENGINE v2.0...', 'term-cyan');
+            await sleep(80);
+            appendTermLine(`INGESTING CIPHERTEXT HASH: SHA-256 [${encryptedPayloadRaw.salt.slice(0, 12)}...]`);
+            await sleep(70);
+            appendTermLine('EULER-LAGRANGE EQUATIONS OF MOTION ACTIVATED: d/dt(∂L/∂q̇) - ∂L/∂q = 0');
+            await sleep(70);
+            appendTermLine('DERIVING PBKDF2 KEY MANIFOLD [100,000 ROUNDS OF SHA-256]...');
+            await sleep(90);
+
+            let success = false;
             try {
-                // Decrypt using Web Crypto API
-                const salt = base64ToUint8(rawPayload.salt);
-                const iv = base64ToUint8(rawPayload.iv);
-                const tag = base64ToUint8(rawPayload.tag);
-                const cipher = base64ToUint8(rawPayload.ciphertext);
+                const salt = base64ToUint8(encryptedPayloadRaw.salt);
+                const iv = base64ToUint8(encryptedPayloadRaw.iv);
+                const tag = base64ToUint8(encryptedPayloadRaw.tag);
+                const cipher = base64ToUint8(encryptedPayloadRaw.ciphertext);
 
-                // In Web Crypto API AES-GCM, the 16-byte auth tag is appended to the ciphertext
+                // Combined cipher with tag for Web Crypto AES-GCM
                 const combined = new Uint8Array(cipher.length + tag.length);
                 combined.set(cipher);
                 combined.set(tag, cipher.length);
@@ -634,6 +886,11 @@
                     ['decrypt']
                 );
 
+                appendTermLine('EINSTEIN GRAVITATIONAL TENSOR: G_μν + Λg_μν = (8πG/c⁴) T_μν [MATCHED]', 'term-cyan');
+                await sleep(80);
+                appendTermLine('VERIFYING GALOIS COUNTER MODE (GCM) GHASH AUTHENTICATION VECTOR...');
+                await sleep(90);
+
                 const decryptedBuffer = await crypto.subtle.decrypt(
                     { name: 'AES-GCM', iv: iv },
                     derivedKey,
@@ -641,51 +898,74 @@
                 );
 
                 const decryptedText = new TextDecoder().decode(decryptedBuffer);
-                decryptedData = JSON.parse(decryptedText);
+                decryptedBundle = JSON.parse(decryptedText);
+                success = true;
 
-                // Render Dashboard
-                renderVaultData(decryptedData, password);
+            } catch (cryptoErr) {
+                success = false;
+            }
 
-                // Show Dashboard
-                document.getElementById('authSection').style.display = 'none';
-                document.getElementById('vaultSection').style.display = 'block';
+            if (success) {
+                appendTermLine('GHASH VECTOR VERIFIED // CHECKSUM 100% INTEGRAL', 'term-white');
+                await sleep(80);
+                appendTermLine('QUANTUM DECRYPTION COMPLETED: 0 BYTES TRANSMITTED OVER WIRE', 'term-white');
+                await sleep(80);
+                appendTermLine('ACCESS GRANTED: WELCOME ARCHITECT EULER-X0.', 'term-cyan');
+                termStatus.textContent = 'DECRYPTION SUCCESSFUL';
+                termStatus.style.color = 'var(--green-core)';
+                await sleep(400);
 
-            } catch (err) {
-                console.error(err);
-                authCard.classList.remove('shake');
-                void authCard.offsetWidth; // trigger reflow
-                authCard.classList.add('shake');
-                authStatus.innerHTML = '<span class="error-msg">❌ Invalid Master Password or corrupted vault.</span>';
-                unlockBtn.innerHTML = '<span>Unlock Vault</span> 🔓';
-                unlockBtn.disabled = false;
+                terminalOverlay.style.display = 'none';
+                renderDashboard(decryptedBundle);
+
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('dashboardScreen').style.display = 'block';
+
+            } else {
+                appendTermLine('CRITICAL ERROR: GHASH AUTHENTICATION TAG REJECTED!', 'term-red');
+                await sleep(100);
+                appendTermLine('AES-GCM TAMPER / INCORRECT PASSPHRASE VECTOR DETECTED.', 'term-red');
+                await sleep(100);
+                appendTermLine('ZERO-KNOWLEDGE PURGE INITIATED. ABORTING TRANSACTION.', 'term-red');
+                termStatus.textContent = 'ACCESS DENIED';
+                termStatus.style.color = 'var(--red-alert)';
+                await sleep(650);
+
+                terminalOverlay.style.display = 'none';
+                authCard.classList.remove('shake-screen');
+                void authCard.offsetWidth;
+                authCard.classList.add('shake-screen');
+                authStatus.innerHTML = '<span style="color:var(--red-alert); font-weight:800;">[ACCESS DENIED: INVALID MASTER PASSPHRASE]</span>';
             }
         }
 
-        function renderVaultData(data, password) {
-            document.getElementById('backupTimestamp').textContent = 
-                'Last Synced: ' + new Date(data.timestamp).toLocaleString();
+        // ==========================================
+        // 4. DASHBOARD RENDER
+        // ==========================================
+        function renderDashboard(data) {
+            document.getElementById('hudTimestamp').textContent = 
+                `SNAPSHOT: ${new Date(data.timestamp).toLocaleString()} // HOST: ${data.serverIp || '51.170.140.140'}`;
 
-            document.getElementById('envContent').textContent = data.env || 'No .env found.';
-            document.getElementById('configContent').textContent = data.config || 'No config.js found.';
+            document.getElementById('envPayloadBox').textContent = data.env || '# No .env configuration payload found.';
+            document.getElementById('configPayloadBox').textContent = data.config || '// No config.js payload found.';
 
-            // One-liner disaster recovery command
-            const cmd = `curl -fsSL https://raw.githubusercontent.com/Ayoubvvch/ares-md-bot/main/install.sh | bash`;
-            document.getElementById('installCmd').textContent = cmd;
+            const recoveryCommand = `curl -fsSL https://raw.githubusercontent.com/Ayoubvvch/ares-md-bot/main/install.sh | bash`;
+            document.getElementById('installCmdBox').textContent = recoveryCommand;
         }
 
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById(tabId).classList.add('active');
         }
 
-        function copyContent(elementId, btn) {
+        function copyCode(elementId, btn) {
             const text = document.getElementById(elementId).textContent;
             navigator.clipboard.writeText(text).then(() => {
                 const orig = btn.innerHTML;
-                btn.innerHTML = '<span>✅ Copied!</span>';
-                btn.style.background = '#00ff88';
+                btn.innerHTML = '<span>⚡ COPIED TO CLIPBOARD!</span>';
+                btn.style.background = 'var(--green-core)';
                 btn.style.color = '#000';
                 setTimeout(() => {
                     btn.innerHTML = orig;
@@ -695,26 +975,26 @@
             });
         }
 
-        function downloadSessionArchive() {
-            if (!decryptedData?.sessionTarBase64) {
-                alert('Session archive is not present in this backup bundle.');
+        function downloadSessionBlob() {
+            if (!decryptedBundle?.sessionTarBase64) {
+                alert('Session archive is not present in this bundle.');
                 return;
             }
-            const bytes = base64ToUint8(decryptedData.sessionTarBase64);
+            const bytes = base64ToUint8(decryptedBundle.sessionTarBase64);
             const blob = new Blob([bytes], { type: 'application/gzip' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `ares_sessions_${new Date().toISOString().slice(0,10)}.tar.gz`;
+            a.download = `ares_sessions_${new Date().toISOString().slice(0, 10)}.tar.gz`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
 
-        function downloadTextFile(filename, content) {
+        function downloadTextBlob(filename, content) {
             if (!content) {
-                alert('Content not found.');
+                alert('Target content missing.');
                 return;
             }
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -728,14 +1008,12 @@
             URL.revokeObjectURL(url);
         }
 
-        function lockVault() {
-            decryptedData = null;
-            document.getElementById('masterPass').value = '';
-            document.getElementById('authStatus').innerHTML = '';
-            document.getElementById('unlockBtn').innerHTML = '<span>Unlock Vault</span> 🔓';
-            document.getElementById('unlockBtn').disabled = false;
-            document.getElementById('vaultSection').style.display = 'none';
-            document.getElementById('authSection').style.display = 'block';
+        function lockdownVault() {
+            decryptedBundle = null;
+            document.getElementById('masterPassInput').value = '';
+            document.getElementById('authStatusText').innerHTML = '';
+            document.getElementById('dashboardScreen').style.display = 'none';
+            document.getElementById('authScreen').style.display = 'block';
         }
     </script>
 </body>
