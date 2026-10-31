@@ -833,6 +833,16 @@
                             ⬇️ DOWNLOAD cookies.txt
                         </button>
                     </div>
+
+                    <div class="dl-box">
+                        <div>
+                            <h3 style="color: #b6ff6b;">🧠 ANTIGRAVITY AI BRAIN & SKILLS</h3>
+                            <p>Full AI skills hub, permanent AGENTS.md rules, group workspaces config, and SQLite conversation summaries database.</p>
+                        </div>
+                        <button class="cyber-btn" style="padding: 10px; font-size: 0.8rem; background: #b6ff6b; color: #000;" onclick="downloadAgentBlob()">
+                            ⬇️ DOWNLOAD ares_agent_brain.tar.gz
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1176,6 +1186,23 @@
             const a = document.createElement('a');
             a.href = url;
             a.download = `ares_sessions_${new Date().toISOString().slice(0, 10)}.tar.gz`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadAgentBlob() {
+            if (!decryptedBundle?.agentTarBase64) {
+                alert('Agent brain archive is not present in this bundle.');
+                return;
+            }
+            const bytes = base64ToUint8(decryptedBundle.agentTarBase64);
+            const blob = new Blob([bytes], { type: 'application/gzip' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ares_agent_brain_${new Date().toISOString().slice(0, 10)}.tar.gz`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
