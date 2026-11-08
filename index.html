@@ -772,9 +772,10 @@
             <!-- TABS -->
             <div class="dash-tabs">
                 <button class="tab-btn active" onclick="switchTab('tabEnv', this)">[ 01 // .ENV SECRETS ]</button>
-                <button class="tab-btn" onclick="switchTab('tabRestore', this)">[ 02 // 1-CLICK SERVER RECOVERY ]</button>
-                <button class="tab-btn" onclick="switchTab('tabDownload', this)">[ 03 // SESSIONS & CREDENTIALS ]</button>
-                <button class="tab-btn" onclick="switchTab('tabConfig', this)">[ 04 // CONFIG & COOKIES ]</button>
+                <button class="tab-btn" onclick="switchTab('tabVault', this)">[ 02 // SECURE VAULT ]</button>
+                <button class="tab-btn" onclick="switchTab('tabRestore', this)">[ 03 // 1-CLICK RECOVERY ]</button>
+                <button class="tab-btn" onclick="switchTab('tabDownload', this)">[ 04 // DOWNLOADS & ARCHIVES ]</button>
+                <button class="tab-btn" onclick="switchTab('tabConfig', this)">[ 05 // CONFIG & COOKIES ]</button>
             </div>
 
             <!-- TAB 1: .ENV SECRETS -->
@@ -788,6 +789,19 @@
                     </button>
                 </div>
                 <pre id="envPayloadBox" class="code-container">Loading payload...</pre>
+            </div>
+
+            <!-- TAB 2: SECURE VAULT -->
+            <div id="tabVault" class="tab-panel">
+                <div class="code-actions">
+                    <span style="font-size: 0.75rem; color: #ffb86c;">
+                        ~/.config/ares-vault/vault.json (GITHUB TOKENS, ORACLE OCI & SSH):
+                    </span>
+                    <button class="btn-action" onclick="copyCode('vaultPayloadBox', this)">
+                        <span>COPY VAULT.JSON</span>
+                    </button>
+                </div>
+                <pre id="vaultPayloadBox" class="code-container">Loading vault...</pre>
             </div>
 
             <!-- TAB 2: 1-CLICK SERVER RECOVERY -->
@@ -841,6 +855,16 @@
                         </div>
                         <button class="cyber-btn" style="padding: 10px; font-size: 0.8rem; background: #b6ff6b; color: #000;" onclick="downloadAgentBlob()">
                             ⬇️ DOWNLOAD ares_agent_brain.tar.gz
+                        </button>
+                    </div>
+
+                    <div class="dl-box">
+                        <div>
+                            <h3 style="color: #ffb86c;">🔐 THE SECURE VAULT</h3>
+                            <p>Complete ~/.config/ares-vault: GitHub PATs, SSH keys for Server 2, and Oracle OCI PEM certificates.</p>
+                        </div>
+                        <button class="cyber-btn" style="padding: 10px; font-size: 0.8rem; background: #ffb86c; color: #000;" onclick="downloadVaultBlob()">
+                            ⬇️ DOWNLOAD ares_vault.tar.gz
                         </button>
                     </div>
                 </div>
@@ -1145,6 +1169,7 @@
                 `SNAPSHOT: ${new Date(data.timestamp).toLocaleString()} // HOST: ${data.serverIp || '51.170.140.140'}`;
 
             document.getElementById('envPayloadBox').textContent = data.env || '# No .env configuration payload found.';
+            document.getElementById('vaultPayloadBox').textContent = data.vaultJson || '// No vault.json payload found.';
             document.getElementById('configPayloadBox').textContent = data.config || '// No config.js payload found.';
 
             const recoveryCommand = `curl -fsSL https://raw.githubusercontent.com/Ayoubvvch/ares-md-bot/main/install.sh | bash`;
@@ -1203,6 +1228,23 @@
             const a = document.createElement('a');
             a.href = url;
             a.download = `ares_agent_brain_${new Date().toISOString().slice(0, 10)}.tar.gz`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadVaultBlob() {
+            if (!decryptedBundle?.vaultTarBase64) {
+                alert('Secure Vault archive is not present in this bundle.');
+                return;
+            }
+            const bytes = base64ToUint8(decryptedBundle.vaultTarBase64);
+            const blob = new Blob([bytes], { type: 'application/gzip' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ares_vault_${new Date().toISOString().slice(0, 10)}.tar.gz`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
